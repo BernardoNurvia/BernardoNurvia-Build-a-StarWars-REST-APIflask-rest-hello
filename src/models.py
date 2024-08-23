@@ -3,10 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False)  
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(80), nullable=False)
+    is_active = db.Column(db.Boolean(), nullable=False)  
     user_name = db.Column(db.String(50), nullable=False, unique=True)
     first_name= db.Column(db.String(50), nullable=False)
     last_name=db.Column(db.String(50), nullable=False)
@@ -16,7 +17,7 @@ class User(db.Model):
     starships_favorites_relationship =db.relationship('StarshipsFavorites', back_populates='user_id_relationship')
     vehicles_favorites_relationship =db.relationship('VehiclesFavorites', back_populates='user_id_relationship')
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.user_name
 
     def serialize(self):
         return {
@@ -74,7 +75,7 @@ class StarshipsFavorites(db.Model):
     starship_favorite= db.Column(db.Integer, db.ForeignKey('starship.id'))
     starship_favorite_relationship = db.relationship('Starship', back_populates='id_relationship')
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<StarshipsFavorites %r>' % self.id
 
     def serialize(self):
         return {
@@ -104,7 +105,7 @@ class Starship(db.Model):
     pilots_relationship = db.relationship('Character', back_populates='starship_pilot_relationship')
    
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.id
 
     def serialize(self):
         return {
@@ -120,7 +121,7 @@ class VehiclesFavorites(db.Model):
     vehicle_favorite_relationship = db.relationship('Vehicle', back_populates='id_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.id
 
     def serialize(self):
         return {
@@ -148,7 +149,7 @@ class Vehicle(db.Model):
     pilots_relationship = db.relationship('Character', back_populates='vehicle_pilot_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.id
 
     def serialize(self):
         return {
@@ -177,8 +178,7 @@ class Character(db.Model):
     vehicle_pilot_relationship = db.relationship('Vehicle', back_populates='pilots_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.username
-
+        return '<Character %r>' % self.name
     def serialize(self):
         return {
             'id': self.id,
@@ -201,7 +201,7 @@ class Planet(db.Model):
     characters_relationship = db.relationship('Character', back_populates='homeworld_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.name
 
     def serialize(self):
         return {
@@ -225,7 +225,7 @@ class Species(db.Model):
     characters_relationship = db.relationship('Character', back_populates='species_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<Species %r>' % self.name
 
     def serialize(self):
         return {
