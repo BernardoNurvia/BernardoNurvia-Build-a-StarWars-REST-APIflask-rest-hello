@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, CharactersFavorites, PlanetsFavorites, StarshipsFavorites, Starship, VehiclesFavorites, Vehicle, Character, Planet, Species
+from models import db, Users, CharactersFavorites, PlanetsFavorites, StarshipsFavorites, Starship, VehiclesFavorites, Vehicle, Character, Planet, Species
 #from models import Person
 
 app = Flask(__name__)
@@ -35,20 +35,105 @@ def handle_invalid_usage(error):
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
-
-@app.route('/user', methods=['GET'])
-def handle_hello():
-    all_users = User.query.all()
+#estas son los GET:
+@app.route('/users', methods=['GET'])
+def get_users():
+    all_users = Users.query.all()
     all_users_serialize =[]
     for user in all_users:
         all_users_serialize.append(user.serialize())
 
     response_body = {
-        "msg": "Hello, this is your GET /user response ",
+        "msg": "estos son lo usuarios",
         "data": all_users_serialize
     }
 
     return jsonify(response_body), 200
+
+@app.route('/users/favorites', methods=['GET'])
+def get_users():
+    all_users = Users.query.all()
+    all_users_serialize =[]
+    for user in all_users:
+        all_users_serialize.append(user.serialize())
+
+    response_body = {
+        "msg": "estos son lo usuarios",
+        "data": all_users_serialize
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/characters', methods=['GET'])
+def get_characters():
+    all_characters = Character.query.all()
+    all_characters_serialize = []
+    for character in all_characters:
+        all_characters_serialize.append(character.serialize())
+
+    response_body = {
+        "msg": "Estos son los Personajes",
+        "data": all_characters_serialize
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/starships', methods=['GET'])
+def get_starships():
+    all_starships = Starship.query.all()
+    all_starships_serialize = []
+    for starship in all_starships:
+        all_starships_serialize.append(starship.serialize())
+
+    response_body = {
+        "msg": "Estas son las Starships",
+        "data": all_starships_serialize
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/vehicles', methods=['GET'])
+def get_vehicles():
+    all_vehicles = Vehicle.query.all()
+    all_vehicles_serialize = []
+    for vehicle in all_vehicles:
+        all_vehicles_serialize.append(vehicle.serialize())
+
+    response_body = {
+        "msg": "Estos son los Vehicles",
+        "data": all_vehicles_serialize
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/planets', methods=['GET'])
+def get_planets():
+    all_planets = Planet.query.all()
+    all_planets_serialize = []
+    for planet in all_planets:
+        all_planets_serialize.append(planet.serialize())
+
+    response_body = {
+        "msg": "Estos son los Planets",
+        "data": all_planets_serialize
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/species', methods=['GET'])
+def get_species():
+    all_species = Species.query.all()
+    all_species_serialize = []
+    for specie in all_species:
+        all_species_serialize.append(specie.serialize())
+
+    response_body = {
+        "msg": "Estss son las species",
+        "data": all_species_serialize
+    }
+
+    return jsonify(response_body), 200
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':

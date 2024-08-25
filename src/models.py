@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class User(db.Model):
+class Users(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
@@ -16,8 +16,9 @@ class User(db.Model):
     planets_favorites_relationship = db.relationship('PlanetsFavorites', back_populates='user_id_relationship')
     starships_favorites_relationship =db.relationship('StarshipsFavorites', back_populates='user_id_relationship')
     vehicles_favorites_relationship =db.relationship('VehiclesFavorites', back_populates='user_id_relationship')
+    
     def __repr__(self):
-        return '<User %r>' % self.user_name
+        return '<Users %r>' % self.user_name
 
     def serialize(self):
         return {
@@ -31,11 +32,27 @@ class User(db.Model):
             # do not serialize the password, its a security breach
         }
 
+class UsersFavorites(db.Model):
+    __tablename__ ='users_favorites'
+    id = db.Column(db.Interger, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id_relationship = db.relationship('Users', back_populates='characters_favorites_relationship')
+    character_favorite = db.Column(db.Integer, db.ForeignKey('characters.id'))
+    character_favorite_relationship= db.relationship('Character', back_populates='id_relationship')
+    planet_favorite = db.Column(db.Integer, db.ForeignKey('planet.id'))
+    planet_favorite_relationship= db.relationship('Planet', back_populates='id_relationship')
+    starship_favorite= db.Column(db.Integer, db.ForeignKey('starship.id'))
+    starship_favorite_relationship = db.relationship('Starship', back_populates='id_relationship')
+    vehicle_favorite = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
+    vehicle_favorite_relationship = db.relationship('Vehicle', back_populates='id_relationship')
+    
+
+
 class CharactersFavorites(db.Model):
     __tablename__='characters_favorites'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_id_relationship = db.relationship('User', back_populates='characters_favorites_relationship')
+    user_id_relationship = db.relationship('Users', back_populates='characters_favorites_relationship')
     character_favorite = db.Column(db.Integer, db.ForeignKey('characters.id'))
     character_favorite_relationship= db.relationship('Character', back_populates='id_relationship')
 
@@ -53,7 +70,7 @@ class PlanetsFavorites(db.Model):
     __tablename__ = 'planets_favorites'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_id_relationship = db.relationship('User', back_populates='planets_favorites_relationship')
+    user_id_relationship = db.relationship('Users', back_populates='planets_favorites_relationship')
     planet_favorite = db.Column(db.Integer, db.ForeignKey('planet.id'))
     planet_favorite_relationship= db.relationship('Planet', back_populates='id_relationship')
 
@@ -71,7 +88,7 @@ class StarshipsFavorites(db.Model):
     __tablename__ = 'starships_favorites'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_id_relationship = db.relationship('User', back_populates='starships_favorites_relationship')
+    user_id_relationship = db.relationship('Users', back_populates='starships_favorites_relationship')
     starship_favorite= db.Column(db.Integer, db.ForeignKey('starship.id'))
     starship_favorite_relationship = db.relationship('Starship', back_populates='id_relationship')
     def __repr__(self):
@@ -105,23 +122,35 @@ class Starship(db.Model):
     pilots_relationship = db.relationship('Character', back_populates='starship_pilot_relationship')
    
     def __repr__(self):
-        return '<User %r>' % self.id
+        return '<Starship %r>' % self.id
 
     def serialize(self):
         return {
             'id': self.id,
-          
+            'name': self.name,
+            'model': self.model,
+            'clase': self.starship_class,
+            'passengers': self.passengers,
+            'hyperdrive_rating': self.hyperdrive_rating,
+            'cargo_capacity': self.cargo_capacity,
+            'cost_in_credits': self.cost_in_credits,
+            'length': self.length,
+            'manufacturer': self.manufacturer,
+            'crew': self.crew,
+            'max_atmosphering_speed': self.max_atmosphering_speed,
+            'mglt': self.mglt,
+            'consumables': self.consumables          
         }
 class VehiclesFavorites(db.Model):
     __tablename__ = 'vehicles_favorites'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_id_relationship = db.relationship('User', back_populates='vehicles_favorites_relationship')
+    user_id_relationship = db.relationship('Users', back_populates='vehicles_favorites_relationship')
     vehicle_favorite = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
     vehicle_favorite_relationship = db.relationship('Vehicle', back_populates='id_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.id
+        return '<Users %r>' % self.id
 
     def serialize(self):
         return {
@@ -149,12 +178,22 @@ class Vehicle(db.Model):
     pilots_relationship = db.relationship('Character', back_populates='vehicle_pilot_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.id
+        return '<Vehicle %r>' % self.id
 
     def serialize(self):
         return {
             'id': self.id,
-          
+            'name': self.name,
+            'model': self.model,
+            'vehicle_class': self.vehicle_class,
+            'manufacturer': self.manufacturer,
+            'cost_in_credits': self.cost_in_credits,
+            'length': self.length,
+            'crew': self.crew,
+            'passengers': self.passengers,            
+            'max_atmosphering_speed': self.max_atmosphering_speed,
+            'consumables': self.consumables,   
+            'cargo_capacity': self.cargo_capacity           
         }
 class Character(db.Model):
     __tablename__ = 'characters'
@@ -178,11 +217,20 @@ class Character(db.Model):
     vehicle_pilot_relationship = db.relationship('Vehicle', back_populates='pilots_relationship')
     
     def __repr__(self):
-        return '<Character %r>' % self.name
+        return '<Characters %r>' % self.name
     def serialize(self):
         return {
             'id': self.id,
-          
+            'name': self.name,
+            'gender': self.gender,
+            'eye_color':self.eye_color,
+            'hair_color': self.hair_color,
+            'skin_color': self.skin_color,
+            'mass': self.mass,
+            'species': self.species,
+            'homeworld': self.homeworld,
+            'startship_pilot': self.starship_pilot,
+            'vehicle_pilot': self.vehicle_pilot 
         }
 class Planet(db.Model):
     __tablename__ ='planet'
@@ -201,13 +249,20 @@ class Planet(db.Model):
     characters_relationship = db.relationship('Character', back_populates='homeworld_relationship')
     
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<Planet %r>' % self.name
 
     def serialize(self):
         return {
             'id': self.id,
-          
-        }
+            'name': self.name,
+            'population': self.population,
+            'rotation_period': self.rotation_period,
+            'orbital_period': self.orbital_period,
+            'gravity': self.gravity,
+            'climate': self.climate,
+            'terrain': self.terrain,
+            'surface_water': self.surface_water,
+            }
 class Species(db.Model):
     __tablename__ = 'species'
     id = db.Column(db.Integer, primary_key=True)
@@ -230,5 +285,9 @@ class Species(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-          
+            'name': self.name,
+            'classification': self.classification,
+            'designation': self.designation,
+            'average_height': self.average_height,
+            'average_lifespan': self.average_lifespan,                 
         }
