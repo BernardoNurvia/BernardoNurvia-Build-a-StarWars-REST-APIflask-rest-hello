@@ -176,6 +176,60 @@ def get_species():
 
     return jsonify(response_body), 200
 
+#Estas son los POST:
+@app.route('/planet', methods=['POST'])
+def add_planet():
+    body= request.get_json(silent=True)
+    if body is None:
+        return jsonify({
+               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
+               'errors': {
+                    'name': 'Campo requerido',
+                    'population': 'Campo requerido',
+                    'gravity': 'Campo requerido'
+                }
+        })
+    new_planet = Planet()
+    new_planet.name = body['name']
+    if new_planet.name is None:
+        return jsonify({
+               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
+               'errors': {
+                    'name': 'Campo requerido',
+                }
+        })
+    new_planet.population = body['population']
+    if new_planet.population is None:
+        return jsonify({
+               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
+               'errors': {                 
+                    'population': 'Campo requerido',
+                }
+        })
+    new_planet.rotation_period = body['rotate_period']
+    if new_planet.rotation_period is None:
+        new_planet.rotation_period = 'Desconocido'
+    new_planet.orbital_period = body['robital_period']
+    new_planet.gravity = body['gravity']
+    if new_planet.gravity is None:
+        return jsonify({
+               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
+               'errors': {
+                    'gravity': 'Campo requerido'
+                }
+        })
+    new_planet.climate = body['climate']
+    new_planet.terrain = body['terrain']
+    new_planet.surface_water = body['surface_water']
+    new_planet.species_relationship = body['species_relationship']
+    new_planet.characters_relationship = body['characters_relationship']
+    db.session.add(new_planet)
+    db.session.commit()
+
+    return jsonify({
+        'msg:': 'Tu planeta se ha creado correctamente',
+        'data': new_planet.serialize()
+    })
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
