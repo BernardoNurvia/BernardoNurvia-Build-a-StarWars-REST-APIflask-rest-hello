@@ -32,19 +32,19 @@ class Users(db.Model):
             # do not serialize the password, its a security breach
         }
 
-class UsersFavorites(db.Model):
-    __tablename__ ='users_favorites'
-    id = db.Column(db.Interger, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_id_relationship = db.relationship('Users', back_populates='characters_favorites_relationship')
-    character_favorite = db.Column(db.Integer, db.ForeignKey('characters.id'))
-    character_favorite_relationship= db.relationship('Character', back_populates='id_relationship')
-    planet_favorite = db.Column(db.Integer, db.ForeignKey('planet.id'))
-    planet_favorite_relationship= db.relationship('Planet', back_populates='id_relationship')
-    starship_favorite= db.Column(db.Integer, db.ForeignKey('starship.id'))
-    starship_favorite_relationship = db.relationship('Starship', back_populates='id_relationship')
-    vehicle_favorite = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
-    vehicle_favorite_relationship = db.relationship('Vehicle', back_populates='id_relationship')
+class Favorites(db.Model):
+    __tablename__ ='favorites'
+    id = db.Column(db.Integer, primary_key=True)
+    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # user_id_relationship = db.relationship('Users', back_populates='characters_favorites_relationship')
+    # character_favorite = db.Column(db.Integer, db.ForeignKey('characters.id'))
+    # character_favorite_relationship= db.relationship('Character', back_populates='id_relationship')
+    # planet_favorite = db.Column(db.Integer, db.ForeignKey('planet.id'))
+    # planet_favorite_relationship= db.relationship('Planet', back_populates='id_relationship')
+    # starship_favorite= db.Column(db.Integer, db.ForeignKey('starship.id'))
+    # starship_favorite_relationship = db.relationship('Starship', back_populates='id_relationship')
+    # vehicle_favorite = db.Column(db.Integer, db.ForeignKey('vehicle.id'))
+    # vehicle_favorite_relationship = db.relationship('Vehicle', back_populates='id_relationship')
     
 
 

@@ -35,7 +35,8 @@ def handle_invalid_usage(error):
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
-#estas son los GET:
+
+#Estas son los GET:
 @app.route('/users', methods=['GET'])
 def get_users():
     all_users = Users.query.all()
@@ -50,18 +51,15 @@ def get_users():
 
     return jsonify(response_body), 200
 
-@app.route('/users/favorites', methods=['GET'])
-def get_users():
-    all_users = Users.query.all()
-    all_users_serialize =[]
-    for user in all_users:
-        all_users_serialize.append(user.serialize())
-
+@app.route('/user/<int:id>', methods=['GET'])
+def get_single_user(id):
+    single_user = Users.query.get(id)
+    if single_user is None:
+        return jsonify({'Msg':f'El usuario con el id: {id} no existe'}), 404   
     response_body = {
-        "msg": "estos son lo usuarios",
-        "data": all_users_serialize
+        "msg": "estos son lo datos del usuario",
+        "data": single_user.serialize()
     }
-
     return jsonify(response_body), 200
 
 @app.route('/characters', methods=['GET'])
@@ -78,6 +76,17 @@ def get_characters():
 
     return jsonify(response_body), 200
 
+@app.route('/character/<int:id>', methods=['GET'])
+def get_single_character(id):
+    single_character = Character.query.get(id)
+    if single_character is None:
+        return jsonify({'Msg':f'El personaje con el id: {id} no existe'}), 404   
+    response_body = {
+        "msg": "estos son lo datos del personaje",
+        "data": single_character.serialize()
+    }
+    return jsonify(response_body), 200
+
 @app.route('/starships', methods=['GET'])
 def get_starships():
     all_starships = Starship.query.all()
@@ -90,6 +99,17 @@ def get_starships():
         "data": all_starships_serialize
     }
 
+    return jsonify(response_body), 200
+
+@app.route('/starship/<int:id>', methods=['GET'])
+def get_single_starship(id):
+    single_starship = Starship.query.get(id)
+    if single_starship is None:
+        return jsonify({'Msg':f'El starship con el id: {id} no existe'}), 404   
+    response_body = {
+        "msg": "estos son lo datos del planeta",
+        "data": single_starship.serialize()
+    }
     return jsonify(response_body), 200
 
 @app.route('/vehicles', methods=['GET'])
@@ -106,6 +126,17 @@ def get_vehicles():
 
     return jsonify(response_body), 200
 
+@app.route('/vehicle/<int:id>', methods=['GET'])
+def get_single_vehicle(id):
+    single_vehicle = Vehicle.query.get(id)
+    if single_vehicle is None:
+        return jsonify({'Msg':f'El vehiculo con el id: {id} no existe'}), 404   
+    response_body = {
+        "msg": "estos son lo datos del planeta",
+        "data": single_vehicle.serialize()
+    }
+    return jsonify(response_body), 200
+
 @app.route('/planets', methods=['GET'])
 def get_planets():
     all_planets = Planet.query.all()
@@ -118,6 +149,17 @@ def get_planets():
         "data": all_planets_serialize
     }
 
+    return jsonify(response_body), 200
+
+@app.route('/planet/<int:id>', methods=['GET'])
+def get_single_planets(id):
+    single_planets = Planet.query.get(id)
+    if single_planets is None:
+        return jsonify({'Msg':f'El planeta con el id: {id} no existe'}), 404   
+    response_body = {
+        "msg": "estos son lo datos del planeta",
+        "data": single_planets.serialize()
+    }
     return jsonify(response_body), 200
 
 @app.route('/species', methods=['GET'])
