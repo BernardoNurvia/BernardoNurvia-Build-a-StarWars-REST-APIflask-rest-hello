@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Users, CharactersFavorites, PlanetsFavorites, StarshipsFavorites, Starship, VehiclesFavorites, Vehicle, Character, Planet, Species
+from models import db, Users, Favorites, Starship, Vehicle, Character, Planet, Species
 #from models import Person
 
 app = Flask(__name__)
@@ -60,6 +60,22 @@ def get_single_user(id):
         "msg": "estos son lo datos del usuario",
         "data": single_user.serialize()
     }
+    return jsonify(response_body), 200
+
+@app.route('/users/<int:user_id>/favorites', methods=['GET'])
+def get_user_favorites(user_id):
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({'Msg': f'El usuario con el id: {user_id} no existe'}), 404
+    
+    favorites = Favorites.query.filter_by(user_id=user_id).all()
+    favorites_serialize = [favorite.serialize() for favorite in favorites]
+
+    response_body = {
+        "msg": "Estos son los favoritos del usuario",
+        "data": favorites_serialize
+    }
+
     return jsonify(response_body), 200
 
 @app.route('/characters', methods=['GET'])
@@ -176,60 +192,149 @@ def get_species():
 
     return jsonify(response_body), 200
 
-#Estas son los POST:
-@app.route('/planet', methods=['POST'])
+#Estas son los POST:@app.route('/planet', methods=['POST'])
 def add_planet():
-    body= request.get_json(silent=True)
+    body = request.get_json(silent=True)
     if body is None:
         return jsonify({
-               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
-               'errors': {
-                    'name': 'Campo requerido',
-                    'population': 'Campo requerido',
-                    'gravity': 'Campo requerido'
-                }
-        })
+            'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
+            'Ejemplo': {
+                'name': 'Campo requerido',
+                'population': 'Campo requerido',
+                'gravity': 'Campo requerido'
+            }
+        }), 400
+    
     new_planet = Planet()
-    new_planet.name = body['name']
-    if new_planet.name is None:
-        return jsonify({
-               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
-               'errors': {
-                    'name': 'Campo requerido',
-                }
-        })
-    new_planet.population = body['population']
-    if new_planet.population is None:
-        return jsonify({
-               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
-               'errors': {                 
-                    'population': 'Campo requerido',
-                }
-        })
-    new_planet.rotation_period = body['rotate_period']
-    if new_planet.rotation_period is None:
-        new_planet.rotation_period = 'Desconocido'
-    new_planet.orbital_period = body['robital_period']
-    new_planet.gravity = body['gravity']
-    if new_planet.gravity is None:
-        return jsonify({
-               'msg': 'Debes enviar mínimo los datos requeridos de tu nuevo planeta',
-               'errors': {
-                    'gravity': 'Campo requerido'
-                }
-        })
-    new_planet.climate = body['climate']
-    new_planet.terrain = body['terrain']
-    new_planet.surface_water = body['surface_water']
-    new_planet.species_relationship = body['species_relationship']
-    new_planet.characters_relationship = body['characters_relationship']
+    new_planet.name = body.get('name')
+    new_planet.population = body.get('population')
+    new_planet.gravity = body.get('gravity')
+    
     db.session.add(new_planet)
     db.session.commit()
 
     return jsonify({
-        'msg:': 'Tu planeta se ha creado correctamente',
+        'msg': 'Tu planeta se ha creado correctamente, aunque faltan datos que podrás agregar posteriormente',
         'data': new_planet.serialize()
-    })
+    }), 201
+
+@app.route('/character', methods=['POST'])
+def add_character():
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify({
+            'Msg': 'Debes enviar al menos los siguientes campos',
+            'Ejemplo': {
+                'name': 'Campo requerido',
+                'gender': 'Campo requerido',
+                'eye_color': 'Campo requerido',
+                'height': 'Campo requerido'
+            }
+        }), 400
+    
+    new_character = Character()
+    new_character.name = body.get('name')
+    new_character.gender = body.get('gender')
+    new_character.eye_color = body.get('eye_color')
+    new_character.height = body.get('height')
+    
+    db.session.add(new_character)
+    db.session.commit()
+
+    return jsonify({
+        'Msg': 'Tu personaje se ha creado correctamente',
+        'data': new_character.serialize()
+    }), 201
+
+@app.route('/favorites/planet/<int:planet_id>/<int:user_id>', methods=['POST'])
+def add_favorite_planet(planet_id, user_id):
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({'Msg': f'El usuario con el id: {user_id} no existe'}), 404
+    
+    planet = Planet.query.get(planet_id)
+    if planet is None:
+        return jsonify({'Msg': f'El planeta con el id: {planet_id} no existe'}), 404
+    
+    favorite = Favorites(user_id=user_id, planet_id=planet_id)
+    db.session.add(favorite)
+    db.session.commit()
+
+    response_body = {
+        "msg": "El planeta ha sido agregado a los favoritos del usuario",
+        "data": favorite.serialize()
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/favorite/people/<int:people_id>/', methods=['POST'])
+def add_favorite_character(people_id):
+    body = request.get_json(silent=True)
+    user_id = body.get('user_id')
+    
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({'Msg': f'El usuario con el id: {user_id} no existe'}), 404
+    
+    character = Character.query.get(people_id)
+    if character is None:
+        return jsonify({'Msg': f'El personaje con el id: {people_id} no existe'}), 404
+    
+    favorite = Favorites(user_id=user_id, character_id=people_id)
+    db.session.add(favorite)
+    db.session.commit()
+
+    response_body = {
+        "msg": "El personaje ha sido agregado a los favoritos del usuario",
+        "data": favorite.serialize()
+    }
+
+    return jsonify(response_body), 200
+# aqui pongo los metodos DELETE
+
+@app.route('/favorite/planet/<int:id_planet>', methods=['DELETE'])
+def delete_favorite_planet(id_planet):
+    body = request.get_json(silent=True)
+    user_id = body.get('user_id')
+    
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({'Msg': f'El usuario con el id: {user_id} no existe'}), 404
+    
+    favorite = Favorites.query.filter_by(user_id=user_id, planet_id=id_planet).first()
+    if favorite is None:
+        return jsonify({'Msg': f'El planeta con el id: {id_planet} no está en los favoritos del usuario'}), 404
+    
+    db.session.delete(favorite)
+    db.session.commit()
+
+    response_body = {
+        "msg": "El planeta ha sido eliminado de los favoritos del usuario"
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
+def delete_favorite_character(people_id):
+    body = request.get_json(silent=True)
+    user_id = body.get('user_id')
+    
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({'Msg': f'El usuario con el id: {user_id} no existe'}), 404
+    
+    favorite = Favorites.query.filter_by(user_id=user_id, character_id=people_id).first()
+    if favorite is None:
+        return jsonify({'Msg': f'El personaje con el id: {people_id} no está en los favoritos del usuario'}), 404
+    
+    db.session.delete(favorite)
+    db.session.commit()
+
+    response_body = {
+        "msg": "El personaje ha sido eliminado de los favoritos del usuario"
+    }
+
+    return jsonify(response_body), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
